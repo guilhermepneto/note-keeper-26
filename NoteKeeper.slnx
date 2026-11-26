@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NoteKeeper.Application/NoteKeeper.Application.csproj" />
+    <Project Path="src/NoteKeeper.Domain/NoteKeeper.Domain.csproj" />
+    <Project Path="src/NoteKeeper.Infrastructure/NoteKeeper.Infrastructure.csproj" />
+    <Project Path="src/NoteKeeper.Web/NoteKeeper.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NoteKeeper.Application.Tests/NoteKeeper.Application.Tests.csproj" />
+    <Project Path="tests/NoteKeeper.Domain.Tests/NoteKeeper.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

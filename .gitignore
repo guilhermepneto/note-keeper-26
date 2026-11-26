@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# Configuração local de desenvolvimento (connection string)
+src/NoteKeeper.Web/appsettings.Development.json
+
 # User-specific files
 *.rsuser
 *.suo
