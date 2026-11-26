@@ -1,16 +1,16 @@
 # NoteKeeper — Decisões Técnicas
 
-> Documento central das decisões técnicas do NoteKeeper. Serve como fonte única de verdade para stack, arquitetura, modelo de domínio, persistência, convenções, testes, riscos e decisões em aberto. O escopo funcional está em [planejamento-de-produto.md](planejamento-de-produto.md).
+> Documento central das decisões técnicas do NoteKeeper. Serve como fonte única de verdade para stack, arquitetura, modelo de domínio, persistência, convenções, testes, riscos e decisões em aberto. O escopo funcional está em [prd.md](prd.md).
 >
-> Última atualização: 24/11/2026
+> Última atualização: 26/11/2026
 
 ## 1. Contexto e objetivo
 
 O NoteKeeper é uma aplicação web de anotações inspirada no Google Keep, de **uso individual** e **sem autenticação**. Este documento foi criado para retirar as decisões técnicas do meio do planejamento de produto e mantê-las em um único lugar.
 
-- **Produto:** [planejamento-de-produto.md](planejamento-de-produto.md)
+- **Produto:** [prd.md](prd.md)
 - **Uso:** individual, local ou em ambiente privado
-- **Status:** planejamento em andamento; implementação ainda não iniciada
+- **Status:** Fases 0 e 1 concluídas; Fase 2 planejada
 
 ## 2. Resumo das decisões
 
@@ -143,8 +143,8 @@ erDiagram
         guid Id PK
         string Titulo
         string Descricao
-        int Prioridade
-        int Cor
+        string Prioridade
+        string Cor
         bool Fixada
         bool Arquivada
         bool Excluida
@@ -165,17 +165,17 @@ EF Core: relacionamento N:N com tabela de junção implícita `NotasCategorias` 
 
 ### Regras de negócio
 
-As regras **RN-01 a RN-12** descrevem o comportamento esperado do produto e estão no [planejamento de produto](planejamento-de-produto.md), seção 4. O modelo acima deve refleti-las.
+As regras **RN-01 a RN-12** descrevem o comportamento esperado do produto e estão no [planejamento de produto](prd.md), seção 4. O modelo acima deve refleti-las.
 
 ## 6. Persistência
 
 - `ContextoNoteKeeper` herda de `DbContext` e aplica as configurações por assembly.
 - Tabelas: `Notas`, `Categorias` e `NotasCategorias`.
-- Índices previstos: `(Excluida, Arquivada)` e `LembreteEm` em `Notas`; `Titulo` único em `Categorias`.
+- Índices previstos: `(Excluida, Arquivada)` e `LembreteEm` em `Notas`; `Titulo` (não único) em `Categorias`. A unicidade é validada na Application, conforme DTA-04.
 - **Exclusão lógica:** filtro global `Excluida == false` nas consultas de `Nota`; a lixeira usa `IgnoreQueryFilters()` explicitamente.
 - **Timestamps:** `CriadaEm` e `AtualizadaEm` são preenchidas em UTC no `SaveChangesAsync`, não nas telas.
 - **Exclusão de categoria:** a camada Application marca as notas da categoria com `Excluida = true` e `ExcluidaEm = agora` e remove a categoria. A cascata do banco fica restrita à tabela de junção.
-- **Enums:** o diagrama representa `Prioridade` e `Cor` como inteiros; a representação definitiva (inteiro ou texto) está em DTA-01.
+- **Enums:** `Prioridade` e `Cor` são persistidos como texto legível (`nvarchar(20)`), conforme DTA-01.
 - **Connection string:** fora do controle de versão, via `appsettings.Development.json` ou user secrets. O código não deve conter credenciais.
 - **Migrations:** geradas no projeto Infrastructure e versionadas no repositório.
 
@@ -209,7 +209,7 @@ As regras **RN-01 a RN-12** descrevem o comportamento esperado do produto e est�
 - **MSTest** nos projetos `NoteKeeper.Domain.Tests` e `NoteKeeper.Application.Tests`.
 - Cobertura das regras RN-01 a RN-12: criação e validação da nota, vínculo com categorias, filtros, exclusão lógica, cascata de categoria e ordenação.
 - **DataAnnotations** nas ViewModels para validação de entrada; invariantes nas entidades para não depender apenas da UI.
-- Unicidade de categoria validada na Application e reforçada por índice único no banco.
+- Unicidade de categoria validada na Application, sem índice único no banco (DTA-04).
 - Testes de integração (banco real, `WebApplicationFactory`) ficam fora do MVP; podem ser adicionados depois (DTA-07).
 
 ## 10. Segurança e operação
@@ -232,12 +232,14 @@ As regras **RN-01 a RN-12** descrevem o comportamento esperado do produto e est�
 
 ## 12. Decisões técnicas em aberto
 
-| ID | Ponto | Opções / recomendação |
+> DTA-01, DTA-02 e DTA-04 foram fechadas na Fase 1 (26/11/2026); as demais continuam em aberto.
+
+| ID | Ponto | Decisão / opções |
 |---|---|---|
-| DTA-01 | Representação de `Prioridade` e `Cor` no banco | Inteiro (proposta, alinhado ao diagrama) ou texto legível |
-| DTA-02 | Limites de texto | Confirmar 120 para título, 4.000 para descrição e 60 para categoria |
+| DTA-01 | Representação de `Prioridade` e `Cor` no banco | **Fechada:** texto legível (`HasConversion<string>()`, `nvarchar(20)`) |
+| DTA-02 | Limites de texto | **Fechada:** 120 para título, 4.000 para descrição e 60 para categoria |
 | DTA-03 | Paginação | Listar tudo ou paginar (ex.: 30 por página) desde o MVP |
-| DTA-04 | Unicidade de categoria | Índice único + `Trim` na aplicação? Depende da collation do SQL Server |
+| DTA-04 | Unicidade de categoria | **Fechada:** validação apenas na Application; índice não único em `Titulo` |
 | DTA-05 | Seed de demonstração | Criar categorias e notas de exemplo no primeiro start? |
 | DTA-06 | Migrations em produção | Aplicar no start da aplicação ou em pipeline de deploy |
 | DTA-07 | Testes de integração | Adiar para depois do MVP ou incluir desde o início |
@@ -298,8 +300,10 @@ O roadmap segue fatias verticais: cada fase termina com a aplicação executáve
 - Testes de criação, validação e normalização de título passando.
 - Nenhuma tela de negócio ainda.
 
-**Decisões necessárias antes de gerar a migration:**
-- DTA-01 (representação dos enums), DTA-02 (limites de texto) e DTA-04 (unicidade de categoria).
+**Decisões fechadas antes de gerar a migration (26/11/2026):**
+- DTA-01: enums como texto legível.
+- DTA-02: limites 120 / 4.000 / 60.
+- DTA-04: unicidade validada na Application, sem índice único.
 
 ### Fase 2 — Notas e lixeira (F1, F8)
 
@@ -417,7 +421,7 @@ Itens fora do escopo atual, para depois da validação do MVP:
 
 | Decisão | Resolver antes de |
 |---|---|
-| DTA-01, DTA-02, DTA-04 | Fase 1 (schema do banco) |
+| DTA-01, DTA-02, DTA-04 | Fase 1 (schema do banco) — fechadas em 26/11/2026 |
 | DTA-09 | Fase 6 (UI de cores) |
 | DTA-03, DTA-05 | Fase 7 (consolidação) |
 | DTA-06, DTA-07, DTA-08 | Pós-MVP / publicação |
@@ -435,3 +439,4 @@ Itens fora do escopo atual, para depois da validação do MVP:
 |---|---|
 | 24/11/2026 | Criação do documento, consolidando as decisões técnicas que estavam no planejamento de produto |
 | 24/11/2026 | Inclusão do roadmap de implementação em fases (seção 13) |
+| 26/11/2026 | Fechamento de DTA-01, DTA-02 e DTA-04 durante a Fase 1 |

@@ -1,8 +1,8 @@
 # NoteKeeper — Planejamento de Produto
 
-> Documento de produto: visão, escopo, fluxos, regras de negócio, critérios de aceite e pontos em aberto. As decisões técnicas estão centralizadas em [decisoes-tecnicas.md](decisoes-tecnicas.md).
+> Documento de produto: visão, escopo, fluxos, regras de negócio, critérios de aceite e pontos em aberto. As decisões técnicas estão centralizadas em [tdd.md](tdd.md).
 >
-> Última atualização: 24/11/2026
+> Última atualização: 26/11/2026
 
 ## 1. Visão
 
@@ -10,7 +10,7 @@ NoteKeeper é uma aplicação web de anotações inspirada no Google Keep, de **
 
 Uma nota pode **não ter categoria nenhuma ou ter várias**. Categorias são o eixo de organização e filtro do produto.
 
-**Premissa de uso:** uma única pessoa, sem login, cadastro, perfis ou multiusuário. A ausência de autenticação é uma decisão de produto — não um adiamento — e o app roda na própria máquina ou em ambiente privado. Se um dia for publicado na internet, essa decisão precisa ser reavaliada (ver R5 em [decisoes-tecnicas.md](decisoes-tecnicas.md)).
+**Premissa de uso:** uma única pessoa, sem login, cadastro, perfis ou multiusuário. A ausência de autenticação é uma decisão de produto — não um adiamento — e o app roda na própria máquina ou em ambiente privado. Se um dia for publicado na internet, essa decisão precisa ser reavaliada (ver R5 em [tdd.md](tdd.md)).
 
 ### Proposta de valor
 
@@ -55,7 +55,7 @@ Uma nota pode **não ter categoria nenhuma ou ter várias**. Categorias são o e
 
 ## 4. Regras de negócio
 
-> A modelagem técnica (campos, tipos, índices e persistência) está em [decisoes-tecnicas.md](decisoes-tecnicas.md).
+> A modelagem técnica (campos, tipos, índices e persistência) está em [tdd.md](tdd.md).
 
 - **RN-01** — Título da nota é obrigatório e limitado a 120 caracteres; descrição é opcional e limitada a 4.000.
 - **RN-02** — Prioridade é obrigatória e assume um dos 4 valores do enum; padrão `Media`.
@@ -92,16 +92,16 @@ Uma nota pode **não ter categoria nenhuma ou ter várias**. Categorias são o e
 5. **Paleta de cores** — as 10 cores propostas são suficientes para o uso real?
 6. **Idioma da interface** — pt-BR apenas, com textos hardcoded, ou recursos de localização desde já?
 
-> Decisões técnicas pendentes (persistência, paginação, seed, deploy etc.) estão na seção 12 de [decisoes-tecnicas.md](decisoes-tecnicas.md).
+> Decisões técnicas pendentes (persistência, paginação, seed, deploy etc.) estão na seção 12 de [tdd.md](tdd.md).
 
 ## 7. Próximos passos de produto
 
 1. Validar os pontos de produto em aberto com o usuário.
 2. Detalhar jornadas e wireframes das telas principais.
 3. Escrever histórias de usuário e montar o backlog do MVP.
-4. Só então iniciar a implementação, seguindo as decisões e o roadmap de [decisoes-tecnicas.md](decisoes-tecnicas.md).
+4. Só então iniciar a implementação, seguindo as decisões e o roadmap de [tdd.md](tdd.md).
 
 ## 8. Referências
 
-- [Decisões técnicas](decisoes-tecnicas.md)
+- [Decisões técnicas](tdd.md)
 - Google Keep — referência funcional e de experiência
